@@ -1,10 +1,8 @@
-import type * as coda from "@codahq/packs-sdk";
 import { UserVisibleError } from "@codahq/packs-sdk";
 
 const jsregression = require("js-regression");
 
-export async function fitMultiInputModel(
-  context: coda.ExecutionContext,
+export function fitMultiInputModel(
   outputVariable: number[],
   inputVariables: number[][]
 ) {
@@ -40,8 +38,7 @@ export async function fitMultiInputModel(
   };
 }
 
-export async function fitBasicModel(
-  context: coda.ExecutionContext,
+export function fitBasicModel(
   outputVariable: number[],
   inputVariable: number[]
 ) {
@@ -59,10 +56,10 @@ export async function fitBasicModel(
 
   let coefficient = xyDev / xxDev;
   let intercept = yMean - coefficient*xMean;
-  
+
   // build a string representing the model
   let equation = `y = ${coefficient} (x_1) + ${intercept}`
-  
+
   return {
     equation,
     intercept,

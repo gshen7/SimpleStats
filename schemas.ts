@@ -9,5 +9,14 @@ export const LinearEquationSchema = coda.makeObjectSchema({
       items: {type: coda.ValueType.Number}
     }
   },
-  primary: "equation",
+  displayProperty: "equation",
+});
+
+export const KMeansClusterSchema = coda.makeObjectSchema({
+  properties: {
+    coordinates: {type: coda.ValueType.Array, items: {type:coda.ValueType.Number}},
+    cluster: {type:coda.ValueType.String},
+    centroid: {type: coda.ValueType.Array, items: {type:coda.ValueType.Number}},
+  },
+  displayProperty: "cluster",
 });

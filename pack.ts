@@ -1,5 +1,6 @@
 import * as coda from "@codahq/packs-sdk";
-import * as helpers from "./linear";
+import * as linear from "./linear";
+import * as kmeans from "./kmeans";
 import * as schemas from "./schemas";
 
 export const pack = coda.newPack();
@@ -27,8 +28,8 @@ pack.addFormula({
   resultType: coda.ValueType.Object,
   schema: schemas.LinearEquationSchema,
 
-  execute: async function ([outputVariable, ...inputVariables], context) {
-    return helpers.fitMultiInputModel(context, outputVariable, inputVariables);
+  execute: async function ([outputVariable, ...inputVariables]) {
+    return linear.fitMultiInputModel(outputVariable, inputVariables);
   },
 });
 
@@ -42,9 +43,6 @@ pack.addFormula({
       name: "output_variable",
       description: "The list of values for the single output variable.",
     }),
-  ],
-
-  varargParameters: [
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
       name: "input_variable",
@@ -55,8 +53,8 @@ pack.addFormula({
   resultType: coda.ValueType.Object,
   schema: schemas.LinearEquationSchema,
 
-  execute: async function ([outputVariable, inputVariable], context) {
-    return helpers.fitBasicModel(context, outputVariable, inputVariable);
+  execute: async function ([outputVariable, inputVariable]) {
+    return linear.fitBasicModel(outputVariable, inputVariable);
   },
 });
 
@@ -87,10 +85,83 @@ pack.addFormula({
 
   resultType: coda.ValueType.Number,
 
-  execute: async function ([equationIntercept, inputVariableCoefficients, ...inputVariableValues], context) {
+  execute: async function ([equationIntercept, inputVariableCoefficients, ...inputVariableValues]) {
     if (inputVariableCoefficients.length != inputVariableValues.length){
       throw new coda.UserVisibleError(`${inputVariableValues.length} input values were provided. This equation expects ${inputVariableCoefficients.length} values.`)
     }
     return inputVariableCoefficients.reduce((total, coefficient, index) => total+coefficient*inputVariableValues[index], 0) + equationIntercept;
+  },
+});
+
+pack.addFormula({
+  name: "GetKMeansCluster",
+  description: "Returns a list of cluster numbers for given coordinates",
+
+  parameters: [
+    coda.makeParameter({
+      type: coda.ParameterType.Number,
+      name: "number of clusters",
+      description: "Number of clusters to form from all data; the given point will be grouped into one of the clusters.",
+    }),
+    coda.makeParameter({
+      type: coda.ParameterType.Boolean,
+      name: "forceK",
+      description: "Override limit of number of clusters. You should probably just set this to false.",
+      suggestedValue: false,
+    }),
+  ],
+
+  varargParameters: [
+    coda.makeParameter({
+      type: coda.ParameterType.Number,
+      name: "point coordinates",
+      description: "1 or more value for the coordinates of the point to get the cluster for.",
+    }),
+    coda.makeParameter({
+      type: coda.ParameterType.NumberArray,
+      name: "all coordinates",
+      description: "1 or more lists of all values in the data set for the respective coordinate. Do not include the point you are trying to get the cluster for.",
+    }),
+  ],
+
+  resultType: coda.ValueType.Object,
+  schema: schemas.KMeansClusterSchema,
+
+  execute: async function ([k, forceK, ...coordinatesWithPoint]) {
+    return kmeans.getClusterForPoint(k, forceK, coordinatesWithPoint);
+  },
+});
+
+pack.addFormula({
+  name: "GenerateAllClusters",
+  description: "Returns a list of clusters and the coordinates in them.",
+
+  parameters: [
+    coda.makeParameter({
+      type: coda.ParameterType.Number,
+      name: "number of clusters",
+      description: "Number of clusters to form.",
+    }),
+    coda.makeParameter({
+      type: coda.ParameterType.Boolean,
+      name: "forceK",
+      description: "Override limit of number of clusters. You should probably just set this to false.",
+      suggestedValue: false,
+    }),
+  ],
+
+  varargParameters: [
+    coda.makeParameter({
+      type: coda.ParameterType.NumberArray,
+      name: "all coordinates",
+      description: "1 or more lists of all values in the data set for the respective coordinate. Each point should be the same index in all lists (ex. points (0,0) and (1,2) should be represented as [0,1], [0,2]). Include the point you are trying to get the cluster for.",
+    }),
+  ],
+
+  resultType: coda.ValueType.Array,
+  items: schemas.KMeansClusterSchema,
+
+  execute: async function ([k, forceK, ...coordinates]) {
+    return kmeans.getKMeansClusters(k, forceK, coordinates);
   },
 });
