@@ -184,6 +184,6 @@ pack.addFormula({
   items: {type:coda.ValueType.Number},
 
   execute: async function ([k, forceK, ...coordinates]) {
-    return kmeans.getKMeansClusters(1, false, coordinates)[0].centroid;
+    return kmeans.getKMeansClusters(1, false, coordinates).map(c => c.centroid[0])
   },
 });
