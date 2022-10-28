@@ -12,7 +12,7 @@ pack.addFormula({
   parameters: [
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
-      name: "output_variable",
+      name: "outputVariable",
       description: "The list of values for the single output variable.",
     }),
   ],
@@ -20,7 +20,7 @@ pack.addFormula({
   varargParameters: [
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
-      name: "input_variable",
+      name: "inputVariable",
       description: "1 or more lists of values for the input variable(s)",
     }),
   ],
@@ -40,12 +40,12 @@ pack.addFormula({
   parameters: [
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
-      name: "output_variable",
+      name: "outputVariable",
       description: "The list of values for the single output variable.",
     }),
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
-      name: "input_variable",
+      name: "inputVariable",
       description: "1 or more lists of values for the single input variable",
     }),
   ],
@@ -65,12 +65,12 @@ pack.addFormula({
   parameters: [
     coda.makeParameter({
       type: coda.ParameterType.Number,
-      name: "equation_intercept",
+      name: "equationIntercept",
       description: "The intercept from the equation.",
     }),
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
-      name: "input_variable_coefficients",
+      name: "inputVariableCoefficients",
       description: "The coefficients from the equation.",
     }),
   ],
@@ -78,7 +78,7 @@ pack.addFormula({
   varargParameters: [
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
-      name: "input_variable_value",
+      name: "inputVariableValue",
       description: "The value(s) for the input variables in the same order as the coefficients from the equation.",
     }),
   ],
@@ -100,7 +100,7 @@ pack.addFormula({
   parameters: [
     coda.makeParameter({
       type: coda.ParameterType.Number,
-      name: "number of clusters",
+      name: "numClusters",
       description: "Number of clusters to form from all data; the given point will be grouped into one of the clusters.",
     }),
     coda.makeParameter({
@@ -114,12 +114,12 @@ pack.addFormula({
   varargParameters: [
     coda.makeParameter({
       type: coda.ParameterType.Number,
-      name: "point coordinates",
+      name: "pointCoordinates",
       description: "1 or more value for the coordinates of the point to get the cluster for.",
     }),
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
-      name: "all coordinates",
+      name: "allCoordinates",
       description: "1 or more lists of all values in the data set for the respective coordinate. Do not include the point you are trying to get the cluster for.",
     }),
   ],
@@ -139,7 +139,7 @@ pack.addFormula({
   parameters: [
     coda.makeParameter({
       type: coda.ParameterType.Number,
-      name: "number of clusters",
+      name: "numClusters",
       description: "Number of clusters to form.",
     }),
     coda.makeParameter({
@@ -153,7 +153,7 @@ pack.addFormula({
   varargParameters: [
     coda.makeParameter({
       type: coda.ParameterType.NumberArray,
-      name: "all coordinates",
+      name: "allCoordinates",
       description: "1 or more lists of all values in the data set for the respective coordinate. Each point should be the same index in all lists (ex. points (0,0) and (1,2) should be represented as [0,1], [0,2]). Include the point you are trying to get the cluster for.",
     }),
   ],
@@ -163,5 +163,27 @@ pack.addFormula({
 
   execute: async function ([k, forceK, ...coordinates]) {
     return kmeans.getKMeansClusters(k, forceK, coordinates);
+  },
+});
+
+pack.addFormula({
+  name: "GetCentroid",
+  description: "Returns a centroid coordinate for a list of coordinates.",
+
+  parameters: [],
+
+  varargParameters: [
+    coda.makeParameter({
+      type: coda.ParameterType.NumberArray,
+      name: "allCoordinates",
+      description: "1 or more lists of all values in the data set for the respective coordinate. Each point should be the same index in all lists (ex. points (0,0) and (1,2) should be represented as [0,1], [0,2]).",
+    }),
+  ],
+
+  resultType: coda.ValueType.Array,
+  items: {type:coda.ValueType.Number},
+
+  execute: async function ([k, forceK, ...coordinates]) {
+    return kmeans.getKMeansClusters(1, false, coordinates)[0].centroid;
   },
 });
